@@ -1,0 +1,135 @@
+{
+  "name": "PTW \u2013 Safety & Sustainability Intelligence",
+  "description": "Safety + Carbon intelligence dashboard for Permit-to-Work. Includes filters, KPIs, trends, and graph relationships.",
+  "version": "2.4",
+  "pages": [
+    {
+      "title": "Overview",
+      "height": 900,
+      "widgets": [
+        {
+          "id": "kpi_total",
+          "type": "kpi",
+          "title": "Permits",
+          "x": 0,
+          "y": 0,
+          "w": 3,
+          "h": 2,
+          "query": "MATCH (p:Permit) WHERE ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($over_budget IS NULL OR p.over_budget = $over_budget) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) RETURN count(p) AS value;"
+        },
+        {
+          "id": "kpi_live",
+          "type": "kpi",
+          "title": "Live",
+          "x": 3,
+          "y": 0,
+          "w": 3,
+          "h": 2,
+          "query": "MATCH (p:Permit) WHERE p.status='Live' AND ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($over_budget IS NULL OR p.over_budget = $over_budget) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) RETURN count(p) AS value;"
+        },
+        {
+          "id": "kpi_high",
+          "type": "kpi",
+          "title": "High Risk",
+          "x": 6,
+          "y": 0,
+          "w": 3,
+          "h": 2,
+          "query": "MATCH (p:Permit) WHERE p.risk_band='High' AND ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($over_budget IS NULL OR p.over_budget = $over_budget) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) RETURN count(p) AS value;"
+        },
+        {
+          "id": "kpi_overbudget",
+          "type": "kpi",
+          "title": "Over Budget",
+          "x": 9,
+          "y": 0,
+          "w": 3,
+          "h": 2,
+          "query": "MATCH (p:Permit) WHERE p.over_budget=true AND ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) RETURN count(p) AS value;"
+        },
+        {
+          "id": "status_pie",
+          "type": "pie",
+          "title": "Status distribution",
+          "x": 0,
+          "y": 2,
+          "w": 6,
+          "h": 6,
+          "query": "MATCH (p:Permit) WHERE ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($over_budget IS NULL OR p.over_budget = $over_budget) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) RETURN p.status AS label, count(*) AS value ORDER BY value DESC;"
+        },
+        {
+          "id": "risk_bar",
+          "type": "bar",
+          "title": "Risk distribution",
+          "x": 6,
+          "y": 2,
+          "w": 6,
+          "h": 6,
+          "query": "MATCH (p:Permit) WHERE ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($over_budget IS NULL OR p.over_budget = $over_budget) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) RETURN p.risk_band AS category, count(*) AS value ORDER BY value DESC;"
+        }
+      ]
+    },
+    {
+      "title": "Carbon",
+      "height": 950,
+      "widgets": [
+        {
+          "id": "daily_line",
+          "type": "line",
+          "title": "Daily carbon (kg CO\u2082e)",
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 6,
+          "query": "MATCH (p:Permit) WHERE p.start_at IS NOT NULL AND ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($over_budget IS NULL OR p.over_budget = $over_budget) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) WITH date(p.start_at) AS d, sum(coalesce(p.ptw_kg_co2e,0.0)) AS total RETURN d AS x, total AS y ORDER BY x;"
+        },
+        {
+          "id": "carbon_loc",
+          "type": "bar",
+          "title": "Carbon by location (Top 10)",
+          "x": 0,
+          "y": 6,
+          "w": 6,
+          "h": 6,
+          "query": "MATCH (p:Permit)-[:AT_LOCATION]->(l:Location) WHERE ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($over_budget IS NULL OR p.over_budget = $over_budget) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) WITH l.name AS category, sum(coalesce(p.ptw_kg_co2e,0.0)) AS value RETURN category, value ORDER BY value DESC LIMIT 10;"
+        },
+        {
+          "id": "carbon_contractor",
+          "type": "bar",
+          "title": "Carbon by contractor (Top 10)",
+          "x": 6,
+          "y": 6,
+          "w": 6,
+          "h": 6,
+          "query": "MATCH (p:Permit)-[:BY_CONTRACTOR]->(c:Contractor) WHERE ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($over_budget IS NULL OR p.over_budget = $over_budget) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) WITH c.name AS category, sum(coalesce(p.ptw_kg_co2e,0.0)) AS value RETURN category, value ORDER BY value DESC LIMIT 10;"
+        }
+      ]
+    },
+    {
+      "title": "Relationships",
+      "height": 950,
+      "widgets": [
+        {
+          "id": "clash_graph",
+          "type": "graph",
+          "title": "Clashes graph (filtered)",
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 8,
+          "query": "MATCH (a:Permit)-[r:CLASHES_WITH]->(b:Permit) WHERE ($permit_no IS NULL OR a.permit_no = $permit_no OR b.permit_no = $permit_no) AND ($status = [] OR a.status IN $status) AND ($risk = [] OR a.risk_band IN $risk) RETURN a, r, b LIMIT 300;"
+        },
+        {
+          "id": "permit_table",
+          "type": "table",
+          "title": "Permits table",
+          "x": 0,
+          "y": 8,
+          "w": 12,
+          "h": 7,
+          "query": "MATCH (p:Permit) OPTIONAL MATCH (p)-[:AT_LOCATION]->(l:Location) OPTIONAL MATCH (p)-[:BY_CONTRACTOR]->(c:Contractor) WHERE ($status = [] OR p.status IN $status) AND ($risk = [] OR p.risk_band IN $risk) AND ($over_budget IS NULL OR p.over_budget = $over_budget) AND ($level2 IS NULL OR p.level2_detected = $level2) AND ($permit_no IS NULL OR p.permit_no = $permit_no) AND ($from IS NULL OR p.start_at >= datetime($from)) AND ($to IS NULL OR p.start_at < datetime($to)) RETURN p.permit_no AS permit_no, p.status AS status, p.risk_band AS risk_band, p.risk_score AS risk_score, p.level2_detected AS level2, p.over_budget AS over_budget, p.ptw_kg_co2e AS kg_co2e, p.cis AS cis, l.name AS location, c.name AS contractor, p.start_at AS start_at ORDER BY p.risk_score DESC, kg_co2e DESC LIMIT 500;"
+        }
+      ]
+    }
+  ]
+}
