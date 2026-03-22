@@ -68,7 +68,7 @@ PROPRIETARY NON-COMMERCIAL LICENCE
    in all copies, derivative works, and associated documentation:
 
        PTW Safety & Sustainability Intelligence Platform
-       Copyright (c) 2024-2026 Kevin Munyuki
+       Copyright (c) 2025-2026 Kevin Munyuki
        https://https://github.com/Kevava/ptw-safety-intelligence
 
 6. NO WARRANTY
