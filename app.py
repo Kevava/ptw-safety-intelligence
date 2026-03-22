@@ -406,9 +406,9 @@ def build_clash_network(df: pd.DataFrame, clash_pairs: List[dict], max_nodes: in
 # UI
 # -----------------------------
 st.set_page_config(page_title="Safety & Sustainability Intelligence (PTW)", layout="wide")
-st.title("🧠🌿 Safety & Sustainability Intelligence for Permit-to-Work")
+st.title("Safety & Sustainability Intelligence for Permit-to-Work")
 
-st.sidebar.header("📤 Data Import")
+st.sidebar.header("Data Import")
 uploaded = st.sidebar.file_uploader("Upload PTW CSV/XLSX", type=["csv", "xlsx"])
 st.sidebar.caption("If you don't have data ready, download the sample CSV below and upload it.")
 
@@ -420,7 +420,7 @@ if uploaded is None:
     except Exception:
         pass
 
-st.sidebar.header("⚙️ Adjustable Thresholds")
+st.sidebar.header("Adjustable Thresholds")
 with st.sidebar.expander("Carbon / Energy factors", expanded=False):
     diesel_factor = st.slider("Diesel factor (kg CO₂e per litre)", 0.5, 6.0, float(DEFAULT_DIESEL_KG_PER_L), 0.01)
     elec_factor = st.slider("Electricity factor (kg CO₂e per kWh)", 0.05, 1.5, float(DEFAULT_ELEC_KG_PER_KWH), 0.01)
@@ -443,18 +443,18 @@ thresholds = Thresholds(
     med_risk_threshold=med_risk_thr,
 )
 
-st.sidebar.header("🧪 Process Emissions")
+st.sidebar.header("Process Emissions")
 with st.sidebar.expander("Process factors (optional)", expanded=False):
     pf = DEFAULT_PROCESS_FACTORS.copy()
     for k in list(pf.keys()):
         pf[k] = st.number_input(f"{k} (kg CO₂e per unit)", min_value=0.0, max_value=10000.0, value=float(pf[k]), step=10.0)
 process_factors = pf
 
-st.sidebar.header("🎛️ Scenario Presets")
+st.sidebar.header("Scenario Presets")
 scenario_name = st.sidebar.selectbox("Scenario", list(SCENARIOS.keys()), index=0)
 scenario_key = SCENARIOS[scenario_name]
 
-st.sidebar.header("🕸️ Neo4j")
+st.sidebar.header("Neo4j")
 persist_to_graph = st.sidebar.checkbox("Enable push to Neo4j", value=False, disabled=not NEO4J_AVAILABLE)
 if not NEO4J_AVAILABLE:
     st.sidebar.info("Neo4j integration not available (ensure neo4j_store.py is present and neo4j driver is installed).")
@@ -552,7 +552,7 @@ st.caption(
 )
 
 tab_overview, tab_carbon, tab_relationships, tab_whatif, tab_data = st.tabs(
-    ["📊 Overview", "🌿 Carbon", "🕸️ Relationships", "🧪 What‑If", "📋 Data"]
+    ["Overview", "Carbon", "Relationships", "What‑If", "Data"]
 )
 
 with tab_overview:
